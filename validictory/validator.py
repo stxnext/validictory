@@ -273,9 +273,21 @@ class SchemaValidator(object):
         Validates that the given field is present if required is True
         '''
         # Make sure the field is present
-        if fieldname not in x and required:
+        if fieldname not in x and required and 'either' not in schema:
             self._error("Required field '%(fieldname)s' is missing",
                         None, fieldname)
+
+    def validate_matches(self, x, fieldname, schema, matches=None):
+        # Added by Jesse Lovelace
+        if x.get(matches) != x.get(fieldname):
+            self._error("Field '%(matches)s' must match '%(fieldname)s'",
+                        None, fieldname, matches=matches)
+                        
+    def validate_either(self, x, fieldname, schema, either=None):
+        # Added by Jesse Lovelace
+        if not (x.get(either) or x.get(fieldname)):
+            self._error("Field '%(either)s' or '%(fieldname)s' must exist.",
+                        None, fieldname, either=either)
 
     def validate_blank(self, x, fieldname, schema, blank=False):
         '''
